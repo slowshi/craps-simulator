@@ -10,17 +10,17 @@ import dice from '../Dice'
     9: 4,
     10: 3
   }
-  let totalStats = [];
   class Strategy {
     constructor(params = {}) {
       this.game = new Craps.Game();
       this.name = params['name'] || 'Strategy';
-      this.rollCount = params['rollCount'] || 1;
-      this.bankroll = params['bankroll'] || 200;
-      this.goal = params['goal'] || 300;
+      this.bankroll = params['bankroll'] || 0;
+      this.goal =  params['goal'] || 0;
       this.maxRolls = params['maxRolls'] || 0;
-      this.totalRisk = params['totalRisk'] || 0;
-      this.totalPayout = params['totalPayout'] || 0;
+      this.stopLoss = params['stopLoss'] || 0;
+      this.rollCount = 1;
+      this.sessionStats = [];
+      this.win = false;
       if (typeof(params['evaluateRoll']) === 'function') {
         this.evaluateRoll = params['evaluateRoll'];
       }
@@ -30,30 +30,19 @@ import dice from '../Dice'
     constructor(params) {
       params = (typeof(params) === 'object') ? params : {};
       super(params);
-      // this.rollCount = 1;
-      // this.bankroll = bankroll;
-      // this.totalRisk = 0;
-      // this.totalPayout = 0;
+      this.odds = params['odds'] || 0;
+      this.comeBets = params['point'] || 0;
     }
-    startSession(roll) {
-      console.log(this.rollDice())
-      if(this.bankroll >= this.goal || (this.maxRolls > 0 && this.rollCount === this.maxRolls && this.bankroll > 0)) {
-        console.log('win', this.bankroll, this.goal)
-      } else if(this.bankroll === 0 || (this.maxRolls > 0 && this.rollCount === this.maxRolls)) {
-        console.log('fail!')
+    startSession() {
+      let rollStats = this.rollDice()
+      this.sessionStats.push(rollStats)
+      if((this.bankroll >= this.goal && this.goal > 0) || (this.maxRolls > 0 && this.rollCount === this.maxRolls && this.bankroll > 0)) {
+        this.win = true;
+      } else if(this.bankroll < 5 || (this.stopLoss > 0 && this.bankroll < this.stopLoss) || (this.maxRolls > 0 && this.rollCount === this.maxRolls)) {
+        this.win = false;
       } else {
-        console.log("ROLLDICE")
         this.startSession()
       }
-      // if ((bank > 0 && bank < goal && maxRolls === 0) || (maxRolls > 0 && rollCount < maxRolls && bank > 0 && bank < goal)) {
-      //   callBet()
-      // } else if ((bank >= goal && maxRolls === 0) || (bank > 0  && maxRolls > 0)) {
-      //   stats.win = true
-      //   totalStats.push(stats)
-      // } else {
-      //   stats.win = false
-      //   totalStats.push(stats)
-      // }
     }
     rollDice() {
       let _this = this;
@@ -63,34 +52,39 @@ import dice from '../Dice'
       .filter((bet) => bet.bet.constructor === Craps.PassLineBet)
       if(passLineBet.length === 0 && _this.bankroll >= 5) {
         _this.game.makeBet(new Craps.PlayerBet(1, new Craps.PassLineBet(), 5));
-        _this.bankroll += -5
-      } else if (_this.game.findBet(passLineBet[0]).oddsAmount === 0) {
-        let passBet = passLineBet[0]
-        let pointValue = _this.game.findBet(passBet).bet.pointValue
-        let oddsAmount = MAX_ODDS[pointValue] * _this.game.findBet(passBet).amount
-        if (_this.bankroll >= oddsAmount) {
-          _this.game.makeBet(new Craps.PlayerBet(1, new Craps.PassLineBet(), 0, oddsAmount));
-          _this.bankroll += -oddsAmount
+        _this.bankroll += -5;
+      }
+
+      if (passLineBet.length > 0 && _this.game.findBet(passLineBet[0]).oddsAmount === 0) {
+        let gameBet = _this.game.findBet(passLineBet[0])
+        let pointValue = gameBet.bet.pointValue;
+        let oddsAmount = Math.min(_this.odds, MAX_ODDS[pointValue]) * gameBet.amount;
+        if (_this.bankroll >= oddsAmount && oddsAmount > 0) {
+          _this.game.makeBet(new Craps.PlayerBet(1, new Craps.PassLineBet(), 0, oddsAmount));;
+          _this.bankroll += -oddsAmount;
         }
       }
+
       if (_this.game.pointValue > 0) {
         let comeBets = _this.game.playerBets.filter((bet) => bet.bet.constructor === Craps.ComeBet)
-        if(comeBets.length < 2 && _this.bankroll >= 5) {
-          comeBets.push(_this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(), 5)))
-          _this.bankroll += -5
+        if(comeBets.length < _this.comeBets && _this.bankroll >= 5) {
+          comeBets.push(_this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(), 5)));
+          _this.bankroll += -5;
         }
         comeBets.forEach(function(bet, index) {
-          let pointValue = _this.game.findBet(bet).bet.pointValue
-          let oddsAmount = MAX_ODDS[pointValue] * _this.game.findBet(bet).amount
-          if(pointValue && _this.game.findBet(bet).oddsAmount === 0 && _this.bankroll >= oddsAmount) {
-            _this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(pointValue), 0, oddsAmount))
-            _this.bankroll += -oddsAmount
+          var gameBet = _this.game.findBet(bet);
+          let pointValue = gameBet.bet.pointValue;
+          let oddsAmount = Math.min(_this.odds, MAX_ODDS[pointValue]) * gameBet.amount;
+
+          if(pointValue && gameBet.oddsAmount === 0 && _this.bankroll >= oddsAmount && oddsAmount > 0) {
+            _this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(pointValue), 0, oddsAmount));
+            _this.bankroll += -oddsAmount;
           }
         });
       }
       _this.game.playerBets.forEach((bet)=> {
-        totalRisk += bet.amount + bet.oddsAmount
-      })
+        totalRisk += bet.amount + bet.oddsAmount;
+      });
       let diceRoll = new Craps.DiceRoll(...dice.roll());
       let currentStats = {
         rollCount: _this.rollCount,
@@ -99,19 +93,19 @@ import dice from '../Dice'
         roll: diceRoll.toString(),
         totalPayout: 0,
         bankroll: _this.bankroll
-      }
+      };
       _this.rollCount++
+
       _this.game.rollComplete(diceRoll, (bet, pay) => {
-        totalPayout += bet.amount + bet.oddsAmount + pay;
+        if (pay) {
+          totalPayout += bet.amount + bet.oddsAmount + pay;
+        }
       });
-      _this.bankroll += totalPayout
-      currentStats.totalPayout = totalPayout
-      currentStats.bankroll = _this.bankroll
+      _this.bankroll += totalPayout;
+      currentStats.totalPayout = totalPayout;
+      currentStats.bankroll = _this.bankroll;
       return currentStats;
     }
-  //   clearAll() {
-
-  //   }
   }
 
   function exportToGlobal(global) {

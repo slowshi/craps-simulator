@@ -89,7 +89,7 @@ let startSettion = (bank = 200, goal = 300, maxRolls = 0) => {
 // console.log(totalStats);
 let bank = 200
 let goal = 300
-let iterations = 1000
+let iterations = 1
 for(let i = 0; i < iterations; i++) {
   startSettion(bank, goal)
 }
