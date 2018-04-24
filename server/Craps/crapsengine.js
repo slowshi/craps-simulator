@@ -63,7 +63,7 @@
       this.pointValue = 0;
     }
 
-    /* 
+    /*
      * Validate the bet is appropriate for the game, and add it to the array of player bets for this game.
      * @param playerBet [PlayerBet] The bet a player wishes to make.
      * @param canPressMain [Boolean] If odds exceed the maximum, is it acceptable to press the main bet?
@@ -204,7 +204,7 @@
                bet['bet'].pointValue === playerBet['bet'].pointValue;
       });
     }
-    
+
     /*
      * Verify the minimum wager amount for the table is covered.
      * @param playerBet [PlayerBet] The bet a player wishes to make.
@@ -333,7 +333,7 @@
      * In order to be non-zero, the bet must have a point to be set by roll, and the bet must have a point.
      * @param bet [BaseBet] The specific bet for which we want the odds. The amount can vary by point.
      * @return [Number] The amount of odds that are allowed for a bet.
-     * @note The maximum odds for a losing bet is based on the winnings from a "seven out". 
+     * @note The maximum odds for a losing bet is based on the winnings from a "seven out".
      * @note There are two special odds formulas found in many casinos that have been included here:
      * @note -1 = Full Double Odds: 2.5x on the 6/8, 2x on the 4/5/9/10. Helps to avoid white chips on a $10 main.
      * @note -2 = 3/4/5 (the most common): 3x on the 4/10, 4x on the 5/9, 5x on the 6/8; 6x for all dont bets.
@@ -390,7 +390,7 @@
     }
   }
 
-  /** 
+  /**
    * PlayerBet class that defines a player's single wager.
    */
   class PlayerBet {
@@ -1577,7 +1577,7 @@
           // This is split between the 2 and the 12.
           // For a 2 bet, it is 31 for 1 on the number, minus the 2 returned.
           // However, we must do this in terms of 1 since it is a ratio.
-          'pay': (29/2) 
+          'pay': (29/2)
         },
         {
           'rolls': DiceRoll.getRolls([3, 4, 5, 6, 7, 8, 9, 10, 11]),
@@ -1626,7 +1626,7 @@
           // This is split three ways.
           // For a 3 bet, it is 16 for 1 on the number, minus the 3 returned.
           // However, we must do this in terms of 1 since it is a ratio.
-          'pay': (13/3) 
+          'pay': (13/3)
         },
         {
           'rolls': DiceRoll.getRolls([3, 4, 5, 6, 7, 8, 9, 10]),
