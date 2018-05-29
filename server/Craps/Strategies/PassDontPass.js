@@ -131,7 +131,7 @@ class PassDontPass extends Strategy{
             _this.dontPassPress = 0;
           }
         }
-        payout += bet.getBetAction() + pay;
+        payout += bet.amount + bet.oddsAmount + pay;
       }
     });
 

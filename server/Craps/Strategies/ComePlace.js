@@ -130,9 +130,10 @@ class InsidePressCome extends Strategy{
     }
     if (passBetPointValue > 0  && passLineBet[0].override === null) {
       if(comeBets.length < 1 && hasMinBet) {
-        comeBets.push(_this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(), _this.minBet)));
-        _this.bankroll -= _this.minBet;
+        // comeBets.push(_this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(), _this.minBet)));
+        // _this.bankroll -= _this.minBet;
       }
+
       if (passBetPointValue > 0 && setPoints.indexOf(6) < 0) {
         let betAmount = (_this.minBet + (_this.minBet/5)) * _this.press6;
         if(_this.bankroll >= betAmount) {
@@ -157,16 +158,16 @@ class InsidePressCome extends Strategy{
         }
       }
       if(passComePoints.length === 2 && passComePoints.indexOf(6) > -1 && passComePoints.indexOf(8) > -1 && _this.molly && hasMinBet) {
-          comeBets.push(_this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(), _this.minBet)));
-          _this.bankroll -= _this.minBet;
+          // comeBets.push(_this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(), _this.minBet)));
+          // _this.bankroll -= _this.minBet;
       }
       comeBets.forEach(function(bet, index) {
         var gameBet = _this.game.findBet(bet);
         let comePointValue = gameBet.bet.pointValue;
         let oddsAmount = Math.min(_this.odds, MAX_ODDS[comePointValue]) * gameBet.amount;
         if(comePointValue && gameBet.oddsAmount === 0 && _this.bankroll >= oddsAmount && oddsAmount > 0) {
-          _this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(comePointValue), 0, oddsAmount));
-          _this.bankroll -= oddsAmount;
+          // _this.game.makeBet(new Craps.PlayerBet(1, new Craps.ComeBet(comePointValue), 0, oddsAmount));
+          // _this.bankroll -= oddsAmount;
         }
       });
     }

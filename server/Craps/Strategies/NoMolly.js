@@ -124,7 +124,7 @@ class ThreePointNoMolly extends Strategy{
         var gameBet = _this.game.findBet(bet);
         let comePointValue = gameBet.bet.pointValue;
         let oddsAmount = 6 * gameBet.amount;
-        if(comePointValue && gameBet.oddsAmount === 0 && _this.bankroll >= oddsAmount && oddsAmount > 0) {
+        if(comePointValue && gameBet.oddsAmount === 0 && _this.bankroll >= oddsAmount) {
           _this.game.makeBet(new Craps.PlayerBet(1, new Craps.DontComeBet(comePointValue), 0, oddsAmount));
           _this.bankroll += -oddsAmount;
         }
@@ -148,7 +148,7 @@ class ThreePointNoMolly extends Strategy{
     _this.rollCount++
     _this.game.rollComplete(diceRoll, (bet, pay) => {
       if (bet) {
-        payout += bet.getBetAction() + pay;
+        payout += bet.amount + bet.oddsAmount + pay;
       }
     });
     _this.bankroll += payout;

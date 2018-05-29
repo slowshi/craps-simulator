@@ -1,4 +1,14 @@
 import Strategies from './Strategies'
+/*
+  Pass only (use 3 point molly 0 come bets).
+  Inside 22 + press or takedown
+  Lay 4,10 ???
+  5 roll rule
+  Do/Don't 2-4 system
+  Don't Pass Press Across
+
+*/
+
 function logStats (totalStats, _bankroll) {
   let totalWins = 0;
   let totalLosses = 0;
@@ -71,7 +81,7 @@ function runner(_options, _iterations, _strategy) {
         maxRisk = roll.risk;
       }
       risk += roll.risk;
-      // console.log(roll.setPoints, roll.roll, roll.risk, roll.bankroll);
+      // console.log(roll.setPoints, roll.roll, roll.risk, roll.payout, roll.bankroll);
     })
     let averageRisk = Math.round(risk/strat.rollCount);
     totalStats.push({
@@ -96,7 +106,7 @@ function mollyStrat (_options, _iterations) {
     comeBets: 2,
     hardway: false
   };
-  console.log('---', options.comeBets + 1 + ' Point Molly with:', '$' + options.bankroll, 'Minimum Bets:', '$' + options.minBet);
+  console.log('---', options.comeBets + 1 + ' Point Molly with:', '$' + options.bankroll, 'Minimum Bets:', '$' + options.minBet, 'Odds:', options.odds);
   runner(options, iterations, Strategies.ThreePointMolly);
 }
 
@@ -159,41 +169,95 @@ function noMollyStrat (_options, _iterations) {
   console.log('---', options.comeBets + 1 + ' NO Point Molly with:', '$' + options.bankroll, 'Minimum Bets:', '$' + options.minBet);
   runner(options, iterations, Strategies.ThreePointNoMolly);
 }
+function acrossHedgeStrat(_options, _iterations) {
+  let iterations = _iterations || 10000;
+  let options = _options || {
+    goal: 0,
+    bankroll: 300,
+    maxRolls: 100,
+    stopLoss: 0,
+    minBet: 5,
+  };
+  console.log('---Hedge Across Starting with:', '$' + options.bankroll, 'Minimum Bets:', '$' + options.minBet);
+  runner(options, iterations, Strategies.AcrossHedge);
+}
+function insideBetsStrat(_options, _iterations) {
+  let iterations = _iterations || 10000;
+  let options = _options || {
+    goal: 0,
+    bankroll: 300,
+    maxRolls: 100,
+    stopLoss: 0,
+    minBet: 15,
+  };
+  console.log('---Hedge Across Starting with:', '$' + options.bankroll, 'Minimum Bets:', '$' + options.minBet);
+  runner(options, iterations, Strategies.InsideBets);
+}
+function comePressPlace(_options, _iterations) {
+  let iterations = _iterations || 2;
+  let options = _options || {
+    goal: 0,
+    bankroll: 500,
+    maxRolls: 200,
+    stopLoss: 0,
+    minBet: 10,
+    odds: 1
+  };
+  console.log('---Come Press Place with:', '$' + options.bankroll, 'Minimum Bets:', '$' + options.minBet);
+  runner(options, iterations, Strategies.ComePressPlace);
+}
 // mollyStrat();
 // ironCrossStrat();
-var iterations = 1000;
+var iterations = 10000;
 var strat = {
   goal: 0,
-  bankroll: 2380,
-  maxRolls: 200,
+  bankroll: 300,
+  maxRolls: 100,
   stopLoss: 0,
   minBet: 10,
-  odds: 2,
-  press: true,
+  odds: 5,
+  press: false,
   molly: false,
   cross: false
 };
 let molly = {
   goal: 0,
-  bankroll: 2380,
-  maxRolls: 200,
+  bankroll: 300,
+  maxRolls: 100,
   stopLoss: 0,
-  minBet: 5,
+  minBet: 10,
   odds: 2,
   comeBets: 2,
   hardway: false
 };
-let passDontPassBets = {
-  goal: 0,
-  bankroll: 2380,
-  maxRolls: 200,
-  stopLoss: 0,
-  odds: 1,
-  minBet: 5,
-}
-insidePressComeStrat(strat, iterations);
-molly.minBet = 10;
-mollyStrat(molly, iterations);
-molly.minBet = 5;
-noMollyStrat(molly, iterations);
-passDontPass(passDontPassBets, iterations);
+comePressPlace();
+// insideBetsStrat();
+// insidePressComeStrat(strat, iterations)
+// acrossHedgeStrat();
+// molly.comeBets = 0;
+// molly.minBet = 10;
+// molly.odds = 5;
+// mollyStrat(molly, iterations);
+
+// molly.comeBets = 1;
+// molly.minBet = 10;
+// molly.odds = 3;
+// mollyStrat(molly, iterations);
+
+// molly.comeBets = 2;
+// molly.minBet = 10;
+// molly.odds = 2;
+// mollyStrat(molly, iterations);
+
+// molly.comeBets = 4;
+// molly.minBet = 10;
+// molly.odds = 1;
+// mollyStrat(molly, iterations);
+
+// molly.comeBets = 0;
+// molly.minBet = 5;
+// noMollyStrat(molly, iterations);
+
+// molly.comeBets = 2;
+// molly.minBet = 5;
+// noMollyStrat(molly, iterations);
